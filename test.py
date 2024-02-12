@@ -1,7 +1,10 @@
+import pandas as pd
 from concorde.tsp import TSPSolver
-fname = "tsp/roma68.tsp"
-solver = TSPSolver.from_tspfile(fname)
+
+csv_data = pd.read_csv('tsp/roma_without_esrin.csv', delimiter='\t')
+localisations = csv_data['Localisation'].str.split(',', expand=True)
+
+solver = TSPSolver.from_data(localisations[0], localisations[1], norm="GEO")
 solution = solver.solve()
-print(solution.found_tour)
-print(solution.optimal_value)
-print(solution.tour)
+
+print(csv_data.iloc[solution.tour].to_csv(index=False,sep='\t'))
