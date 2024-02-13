@@ -4,9 +4,6 @@ FROM python:3.9
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Installer PyConcorde
-RUN pip install 'pyconcorde @ git+https://github.com/jvkersch/pyconcorde'
-
 # Copier le fichier requirements.txt dans le conteneur
 COPY requirements.txt .
 
