@@ -14,6 +14,29 @@
             <li>{{ lat }}, {{ lon }}</li>
         {% endfor %}
     </ul>
+    <div id="map" style="height: 400px;"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Données du chemin optimal
+        var optimalRoute = [
+            {% for lat, lon in optimal_route %}
+                [{{ lat }}, {{ lon }}],
+            {% endfor %}
+        ];
+
+        // Initialise la carte
+        var map = L.map('map').setView([ {{ optimal_route[0][0] }}, {{ optimal_route[0][1] }}], 13); // Centre la carte sur Paris
+
+        // Ajoute une couche de carte OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Ajoute des marqueurs pour le chemin optimal
+        for (var i = 0; i < optimalRoute.length; i++) {
+            var marker = L.marker(optimalRoute[i]).addTo(map);
+        }
+    </script>
     <form action="/generate_kml" method="post">
         <textarea hidden="true" id="positions" name="positions" rows="4" cols="50">{{optimal_route_ta}}</textarea><br>
         <input type="submit" value="Get KML">
