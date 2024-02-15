@@ -53,3 +53,25 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #0056b3;
 }
+
+/* Style de la liste ul */
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+/* Style des éléments li */
+li {
+    background-color: #fff;
+    padding: 10px 20px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+/* Style des éléments li au survol */
+li:hover {
+    background-color: #f0f0f0;
+}
