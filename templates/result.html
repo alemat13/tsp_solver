@@ -10,9 +10,13 @@
     <h1>Optimal Route</h1>
     <p>The optimal route calculated is:</p>
     <ul>
-        {% for point in optimal_route %}
-            <li>{{ point }}</li>
+        {% for lat, lon in optimal_route %}
+            <li>{{ lat }}, {{ lon }}</li>
         {% endfor %}
     </ul>
+    <form action="/generate_kml" method="post">
+        <textarea hidden="true" id="positions" name="positions" rows="4" cols="50">{{optimal_route_ta}}</textarea><br>
+        <input type="submit" value="Get KML">
+    </form>
 </body>
 </html>
