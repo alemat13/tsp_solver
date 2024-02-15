@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Route Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Optimal Route Finder</h1>
+    <form action="/calculate" method="post">
+        <label for="positions">Enter GPS positions (latitude, longitude):</label><br>
+        <textarea id="positions" name="positions" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Calculate Optimal Route">
+    </form>
+</body>
+</html>
