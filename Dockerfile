@@ -13,5 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copier le reste des fichiers dans le conteneur
 COPY . .
 
+EXPOSE 5000
+
 # Commande par défaut à exécuter lors du démarrage du conteneur
-CMD [ "python", "./test.py" ]
+CMD [ "python", "./app.py" ]
