@@ -16,4 +16,4 @@ To build the Docker image, run the following command at the projet root dir:
 
 Then run the image :
 
-``docker run -i -t tsp_solver``
+``docker run -p 3000:3000 -t tsp_solver``
