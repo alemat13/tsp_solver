@@ -75,3 +75,6 @@ li {
 li:hover {
     background-color: #f0f0f0;
 }
+
+/* Map Leaflet */
+#map { height: 480px; }
