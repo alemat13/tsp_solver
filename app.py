@@ -9,7 +9,12 @@ def index():
 
 def get_solver_tour_concorde(points):
     from concorde.tsp import TSPSolver
-    solver = TSPSolver.from_data(points[:, 0], points[:, 1], norm="GEO")
+    print(points)
+    solver = TSPSolver.from_data(
+        [p[0] for p in points],
+        [p[1] for p in points],
+        norm="GEO"
+    )
     tour_data = solver.solve()
     return tour_data.tour
 
