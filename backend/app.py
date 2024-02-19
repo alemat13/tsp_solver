@@ -1,6 +1,8 @@
 from flask import Flask, Response, render_template, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Page d'accueil de l'application
 @app.route('/')
@@ -78,11 +80,12 @@ def get_optimal_route(points):
     return [points[i] for i in tour_indices]
 
 # Route pour traiter le formulaire et afficher le chemin optimal
-@app.route('/calculate', methods=['POST'])
+@app.route('/calculate', methods=['POST', 'GET'])
 def calculate_route():
     
     # Récupérer les positions GPS entrées par l'utilisateur
     positions = request.form.get('positions').splitlines()
+    print(positions)
 
     # Convertir les positions en un format utilisable par Concorde
     # Supposons que les positions sont des tuples (latitude, longitude)
@@ -96,6 +99,22 @@ def calculate_route():
         optimal_route=optimal_route,
         optimal_route_ta='\n'.join([str(p[0]) + "," + str(p[1]) for p in optimal_route])
     )
+
+@app.route('/api/calculate', methods=['POST', 'GET'])
+def calculate_route_api():
+    
+    # Récupérer les positions GPS entrées par l'utilisateur
+    positions = request.json
+
+    # Convertir les positions en un format utilisable par Concorde
+    # Supposons que les positions sont des tuples (latitude, longitude)
+    points = [(float(pos.split(',')[0]), float(pos.split(',')[1])) for pos in positions]
+
+    optimal_route = get_optimal_route(points)
+    print(optimal_route)
+    
+    # Afficher le résultat à l'utilisateur
+    return optimal_route
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
