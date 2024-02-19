@@ -23,11 +23,7 @@
     ></script>
     <h1>Optimal Route</h1>
     <p>The optimal route calculated is:</p>
-    <ul>
-      {% for lat, lon in optimal_route %}
-      <li>{{ lat }}, {{ lon }}</li>
-      {% endfor %}
-    </ul>
+    <ul id="gps_list"></ul>
     <div id="map"></div>
     <script>
       // Données du chemin optimal
@@ -37,8 +33,15 @@
           {% endfor %}
       ];
 
+      var gps_list = document.getElementById('gps_list');
+      for (var i = 0; i < optimalRoute.length; i++) {
+          var li = document.createElement('li');
+          li.innerHTML = optimalRoute[i][0] + ', ' + optimalRoute[i][1];
+          gps_list.appendChild(li);
+      }
+
       // Initialise la carte
-      var map = L.map('map').setView([ {{ optimal_route[0][0] }}, {{ optimal_route[0][1] }}], 13);
+      var map = L.map('map').setView([optimalRoute[0][0], optimalRoute[0][1]], 13);
 
       // Ajoute une couche de carte OpenStreetMap
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
