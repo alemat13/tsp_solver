@@ -8,7 +8,11 @@ https://www.docker.com/products/docker-desktop/
 
 ## Build Docker Image
 
-To build the Docker image, run the following command at the projet root dir:
+The simplier way to build the Docker image is to run this command :
+
+``docker build -t tsp_solver:latest https://github.com/alemat13/tsp_solver.git#main``
+
+Or if you already cloned the repo, you can run the following command at the projet root dir:
 
 ``docker build -t tsp_solver .``
 
@@ -16,4 +20,9 @@ To build the Docker image, run the following command at the projet root dir:
 
 Then run the image :
 
-``docker run -p 3000:3000 -t tsp_solver``
+``docker run -p 5000:5000 -t tsp_solver:latest``
+
+## Access webapp
+
+You can launch the webapp at the following address : http://127.0.0.1:5000
+
