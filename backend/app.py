@@ -85,7 +85,6 @@ def calculate_route():
     
     # Récupérer les positions GPS entrées par l'utilisateur
     positions = request.form.get('positions').splitlines()
-    print(positions)
 
     # Convertir les positions en un format utilisable par Concorde
     # Supposons que les positions sont des tuples (latitude, longitude)
@@ -107,14 +106,10 @@ def calculate_route_api():
     positions = request.json
 
     # Convertir les positions en un format utilisable par Concorde
-    # Supposons que les positions sont des tuples (latitude, longitude)
     points = [(float(pos.split(',')[0]), float(pos.split(',')[1])) for pos in positions]
-
-    optimal_route = get_optimal_route(points)
-    print(optimal_route)
     
     # Afficher le résultat à l'utilisateur
-    return optimal_route
+    return get_optimal_route(points)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
