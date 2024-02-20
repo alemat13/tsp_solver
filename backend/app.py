@@ -32,7 +32,7 @@ def get_solver_tour_mock(points):
     selected_tour = list(range(0, len(points)))
     selected_tour_distance = get_tour_distance_mock([points[i] for i in selected_tour])
     for i in range(0, 10000):
-        candidate_tour = selected_tour
+        candidate_tour = list(selected_tour)
         random.shuffle(candidate_tour)
         candidate_tour_distance = get_tour_distance_mock([points[i] for i in candidate_tour])
         if(candidate_tour_distance < selected_tour_distance):
