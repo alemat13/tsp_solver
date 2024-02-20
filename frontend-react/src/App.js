@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 function App() {
-  const [positions, setPositions] = useState([]);
+  const [positions, setPositions] = useState(['']);
   const [optimizedPositions, setOptimizedPositions] = useState([]);
 
   const handleSubmit = async (e) => {
@@ -35,12 +35,14 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>Enter GPS Positions:</label>
         {positions.map((position, index) => (
-          <input
-            key={index}
-            type="text"
-            value={position}
-            onChange={(e) => handleChange(e, index)}
-          />
+          <div>
+            <input
+              key={index}
+              type="text"
+              value={position}
+              onChange={(e) => handleChange(e, index)}
+            />
+          </div>
         ))}
         <button type="button" onClick={() => setPositions([...positions, ''])}>
           Add Position
@@ -52,7 +54,7 @@ function App() {
           <h2>Optimized Positions:</h2>
           <ul>
             {optimizedPositions.map((position, index) => (
-              <li key={index}>{position}</li>
+              <li key={index}>{position.join(', ')}</li>
             ))}
           </ul>
           <MapContainer center={optimizedPositions[0]} zoom={13} style={{ height: '400px' }}>
@@ -69,6 +71,10 @@ function App() {
                 </Marker>
               );
             })}
+            <Polyline
+             pathOptions={{color: 'red'}}
+             positions={optimizedPositions.map(p => [parseFloat(p[0]), parseFloat(p[1])])}
+            />
           </MapContainer>
         </div>
       )}
