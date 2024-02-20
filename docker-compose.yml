@@ -5,6 +5,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: alemat13/tsp-solver-frontend
     ports:
       - "80:80"
     depends_on:
@@ -14,5 +15,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: alemat13/tsp-solver-backend
     ports:
       - "5000:5000"
