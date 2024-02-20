@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 function App() {
   const [positions, setPositions] = useState([]);
@@ -9,8 +10,8 @@ function App() {
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:5000/api/calculate', {
-        method : 'POST',
-        body : JSON.stringify(positions),
+        method: 'POST',
+        body: JSON.stringify(positions),
         headers: {
           'Content-type': 'application/json'
         }
@@ -54,8 +55,11 @@ function App() {
               <li key={index}>{position}</li>
             ))}
           </ul>
-          <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '400px' }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <MapContainer center={optimizedPositions[0]} zoom={13} style={{ height: '400px' }}>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
             {optimizedPositions.map((position, index) => {
               console.log(position);
               const [lat, lon] = position;
