@@ -12,7 +12,8 @@ function App() {
     '48.8635, 2.3274',
     '48.8462, 2.3447',
     '48.8656, 2.3212',
-    '48.8556, 2.3158'
+    '48.8556, 2.3158',
+    ''
   ]);
   const [optimizedPositions, setOptimizedPositions] = useState([]);
 
@@ -39,6 +40,17 @@ function App() {
     setPositions(newPositions);
   };
 
+  const handlePaste = (e, index) => {
+    e.preventDefault();
+    const pastedTxt = e.clipboardData.getData('text');
+    const newPositionsList = pastedTxt.split(/\r?\n/).filter(e => e !== '');
+    setPositions(prev => [
+      ...prev.slice(0, index),
+      ...newPositionsList,
+      ...prev.slice(index + 1)
+    ]);
+  };
+
   return (
     <div>
       <h1>Optimize GPS Positions</h1>
@@ -51,21 +63,13 @@ function App() {
               type="text"
               value={position}
               onChange={(e) => handleChange(e, index)}
+              onPaste={(e) => handlePaste(e, index)}
             />
           </div>
         ))}
         <button type="button" onClick={() => setPositions([...positions, ''])}>
           Add Position
         </button>
-        <div>
-          <h2>...or add from list</h2>
-          <textarea value=""></textarea>
-          <button type="button" onClick={() => {
-            // todo
-          }}>
-            Add positions list
-          </button>
-        </div>
         <button type="submit">Optimize Positions</button>
       </form>
       {optimizedPositions.length > 0 && (
