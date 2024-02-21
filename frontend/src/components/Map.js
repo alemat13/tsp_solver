@@ -9,24 +9,23 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
-function Map(props) {
-    const {positions, drawPolyline} = props;
-    return <MapContainer center={positions[0]} zoom={13} style={{ height: '400px' }}>
+function Map({positions, bestRoute}) {
+    const center = positions.length === 0 ? [48.8606, 2.3376] : positions[0];
+    return <MapContainer center={center} zoom={13} style={{ height: '400px' }}>
         <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
         {positions.map((position, index) => {
-            console.log(position);
             const [lat, lon] = position;
             return (
-                <Marker position={[parseFloat(lat), parseFloat(lon)]} key={index}>
-                    <Popup>{position}</Popup>
+                <Marker position={position} key={index}>
+                    <Popup>{lat}, {lon}</Popup>
                 </Marker>
             );
         })}
-        {drawPolyline && <Polyline
+        {(bestRoute.length > 1) && <Polyline
             pathOptions={{ color: 'red' }}
-            positions={positions.map(p => [parseFloat(p[0]), parseFloat(p[1])])} />}
+            positions={bestRoute} />}
     </MapContainer>;
 }
 

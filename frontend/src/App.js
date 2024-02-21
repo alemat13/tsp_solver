@@ -15,24 +15,26 @@ function App() {
     '48.8556, 2.3158',
     ''
   ]);
-  const [optimizedPositions, setOptimizedPositions] = useState([]);
+  const [bestRoute, setBestRoute] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:5000/api/calculate', {
         method: 'POST',
-        body: JSON.stringify(positions),
+        body: JSON.stringify(positionsObj),
         headers: {
           'Content-type': 'application/json'
         }
       });
       const data = await response.json();
-      setOptimizedPositions(data);
+      setBestRoute(data);
     } catch (error) {
       console.error('Error optimizing positions:', error);
     }
   };
+
+  const positionsObj = positions.filter(e => e !== '').map(p => p.split(",").map(e => parseFloat(e)));
 
   const handleChange = (e, index) => {
     const newPositions = [...positions];
@@ -57,7 +59,7 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>Enter GPS Positions:</label>
         {positions.map((position, index) => (
-          <div>
+          <div key={index}>
             <input
               key={index}
               type="text"
@@ -71,18 +73,17 @@ function App() {
           Add Position
         </button>
         <button type="submit">Optimize Positions</button>
+        <button type='button' onClick={() => setPositions([])}>Clear</button>
       </form>
-      {optimizedPositions.length > 0 && (
         <div>
           <h2>Optimized Positions:</h2>
           <ul>
-            {optimizedPositions.map((position, index) => (
-              <li key={index}>{position.join(', ')}</li>
+            {bestRoute.map(([lat, lon], index) => (
+              <li key={index}>{lat}, {lon}</li>
             ))}
           </ul>
-          <Map positions={optimizedPositions} drawPolyline={true}/>
+          <Map positions={positionsObj} bestRoute={bestRoute}/>
         </div>
-      )}
     </div>
   );
 }
