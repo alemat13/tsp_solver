@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Map from './components/Map';
+import './App.css'
 
 function App() {
   const [positions, setPositions] = useState([
