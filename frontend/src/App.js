@@ -18,6 +18,12 @@ function App() {
   ]);
   const [bestRoute, setBestRoute] = useState([]);
 
+  // function that validate GPS coordinates user input
+  const validateGPS = (input) => {
+    const regex = /^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/;
+    return regex.test(input);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
