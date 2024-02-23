@@ -81,10 +81,10 @@ def calculate_route_api():
     positions = request.json
 
     # Convertir les positions en un format utilisable par Concorde
-    points = [(float(pos.split(',')[0]), float(pos.split(',')[1])) for pos in positions]
+    # points = [(float(pos.split(',')[0]), float(pos.split(',')[1])) for pos in positions]
     
     # Afficher le résultat à l'utilisateur
-    return get_optimal_route(points)
+    return get_optimal_route(positions)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

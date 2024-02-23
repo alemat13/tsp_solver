@@ -1,38 +1,47 @@
-import React, { useState } from "react";
-import Map from "./components/Map";
+import React, { useState } from 'react';
+import Map from './components/Map';
+import './App.css'
 
 function App() {
   const [positions, setPositions] = useState([
-    "48.8606, 2.3376",
-    "48.8530, 2.3499",
-    "48.8738, 2.2950",
-    "48.8867, 2.3431",
-    "48.8609, 2.3267",
-    "48.8698, 2.3075",
-    "48.8635, 2.3274",
-    "48.8462, 2.3447",
-    "48.8656, 2.3212",
-    "48.8556, 2.3158",
+    '48.8606, 2.3376',
+    '48.8530, 2.3499',
+    '48.8738, 2.2950',
+    '48.8867, 2.3431',
+    '48.8609, 2.3267',
+    '48.8698, 2.3075',
+    '48.8635, 2.3274',
+    '48.8462, 2.3447',
+    '48.8656, 2.3212',
+    '48.8556, 2.3158',
+    ''
   ]);
-  const [optimizedPositions, setOptimizedPositions] = useState([]);
-  const [listInput, setListInput] = useState('');
+  const [bestRoute, setBestRoute] = useState([]);
+
+  // function that validate GPS coordinates user input
+  const validateGPS = (input) => {
+    const regex = /^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/;
+    return regex.test(input);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/calculate", {
-        method: "POST",
-        body: JSON.stringify(positions),
+      const response = await fetch('http://localhost:5000/api/calculate', {
+        method: 'POST',
+        body: JSON.stringify(positionsObj),
         headers: {
           "Content-type": "application/json",
         },
       });
       const data = await response.json();
-      setOptimizedPositions(data);
+      setBestRoute(data);
     } catch (error) {
       console.error("Error optimizing positions:", error);
     }
   };
+
+  const positionsObj = positions.filter(e => e !== '').map(p => p.split(",").map(e => parseFloat(e)));
 
   const handleChange = (e, index) => {
     const newPositions = [...positions];
@@ -40,16 +49,16 @@ function App() {
     setPositions(newPositions);
   };
 
-  const handleListInputChange = (event) => {
-    setListInput(event.target.value);
-  }
-
-  const handleAddInput = () => {
-    const lines = listInput.split(/\r?\n/);
-    const filter = lines.filter(l => l !== "");
-    setPositions([...positions, ...filter]);
-    setListInput('');
-  }
+  const handlePaste = (e, index) => {
+    e.preventDefault();
+    const pastedTxt = e.clipboardData.getData('text');
+    const newPositionsList = pastedTxt.split(/\r?\n/).filter(e => e !== '');
+    setPositions(prev => [
+      ...prev.slice(0, index),
+      ...newPositionsList,
+      ...prev.slice(index + 1)
+    ]);
+  };
 
   return (
     <div>
@@ -57,12 +66,13 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>Enter GPS Positions:</label>
         {positions.map((position, index) => (
-          <div>
+          <div key={index}>
             <input
               key={index}
               type="text"
               value={position}
               onChange={(e) => handleChange(e, index)}
+              onPaste={(e) => handlePaste(e, index)}
             />
             <button type="button" onClick={(e, index) => {
               setPositions([...positions].splice(index));
@@ -73,37 +83,18 @@ function App() {
         <button type="button" onClick={() => setPositions([...positions, ""])}>
           Add Position
         </button>
-        <button type="button" onClick={() => setPositions([''])}>
-          Clear
-        </button>
-        <div>
-          <h2>...or add from list</h2>
-          <textarea
-            value={listInput}
-            onChange={(e) => handleListInputChange(e)}
-            cols={30}
-            rows={20}
-          />
-          <button
-            type="button"
-            onClick={handleAddInput}
-          >
-            Add positions list
-          </button>
-        </div>
         <button type="submit">Optimize Positions</button>
+        <button type='button' onClick={() => setPositions([])}>Clear</button>
       </form>
-      {optimizedPositions.length > 0 && (
         <div>
           <h2>Optimized Positions:</h2>
           <ul>
-            {optimizedPositions.map((position, index) => (
-              <li key={index}>{position.join(", ")}</li>
+            {bestRoute.map(([lat, lon], index) => (
+              <li key={index}>{lat}, {lon}</li>
             ))}
           </ul>
-          <Map positions={optimizedPositions} drawPolyline={true} />
+          <Map positions={positionsObj} bestRoute={bestRoute}/>
         </div>
-      )}
     </div>
   );
 }
