@@ -15,25 +15,9 @@ def get_solver_tour_concorde(points):
     tour_data = solver.solve()
     return tour_data.tour
 
-def get_tour_distance_mock(route):
-    distance = 0
-    for i in range(len(route) -1):
-        distance += (((route[i+1][0] - route[i][0]) ** 2) + ((route[i+1][1] - route[i][1]) ** 2)) ** 0.5
-    return distance
-
-
-def get_solver_tour_mock(points):
-    import random
-    selected_tour = list(range(0, len(points)))
-    selected_tour_distance = get_tour_distance_mock([points[i] for i in selected_tour])
-    for i in range(0, 10000):
-        candidate_tour = list(selected_tour)
-        random.shuffle(candidate_tour)
-        candidate_tour_distance = get_tour_distance_mock([points[i] for i in candidate_tour])
-        if(candidate_tour_distance < selected_tour_distance):
-            selected_tour = candidate_tour
-            selected_tour_distance = candidate_tour_distance
-    return selected_tour
+def get_solver_tour_genetic(points, population_size=100, num_generations=100):
+    from tsp_genetic import solve_tsp_genetic
+    return solve_tsp_genetic(points, population_size, num_generations)
 
 @app.route('/generate_kml', methods=['POST'])
 def generate_kml():
@@ -69,7 +53,7 @@ def get_optimal_route(points):
     try:
         tour_indices = get_solver_tour_concorde(points)
     except ImportError:
-        tour_indices = get_solver_tour_mock(points)
+        tour_indices = get_solver_tour_genetic(points, population_size=10000, num_generations=1000)
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
