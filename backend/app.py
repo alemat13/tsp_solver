@@ -53,7 +53,7 @@ def get_optimal_route(points):
     try:
         tour_indices = get_solver_tour_concorde(points)
     except ImportError:
-        tour_indices = get_solver_tour_genetic(points, population_size=10000, num_generations=1000)
+        tour_indices = get_solver_tour_genetic(points, population_size=1000, num_generations=300)
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
