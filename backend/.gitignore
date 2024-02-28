@@ -25,3 +25,6 @@ instance/
 
 # Fichiers de dépendances Python
 pip-log.txt
+
+# fichier de configuration
+config.ini
