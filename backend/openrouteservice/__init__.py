@@ -1,1 +1,1 @@
-from .matrix import OpenRouteService
+from .service import OpenRouteService

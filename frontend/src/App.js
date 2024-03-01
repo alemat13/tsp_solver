@@ -16,7 +16,7 @@ function App() {
     '48.8556, 2.3158',
     ''
   ]);
-  const [bestRoute, setBestRoute] = useState([]);
+  const [route, setRoute] = useState({optimal_route: [], route: []});
 
   // function that validate GPS coordinates user input
   const validateGPS = (input) => {
@@ -35,7 +35,7 @@ function App() {
         },
       });
       const data = await response.json();
-      setBestRoute(data);
+      setRoute(data);
     } catch (error) {
       console.error("Error optimizing positions:", error);
     }
@@ -89,11 +89,11 @@ function App() {
         <div>
           <h2>Optimized Positions:</h2>
           <ul>
-            {bestRoute.map(([lat, lon], index) => (
+            {route['optimal_route'].map(([lat, lon], index) => (
               <li key={index}>{lat}, {lon}</li>
             ))}
           </ul>
-          <Map positions={positionsObj} bestRoute={bestRoute}/>
+          <Map positions={positionsObj} route={route['route']}/>
         </div>
     </div>
   );

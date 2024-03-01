@@ -84,7 +84,14 @@ def calculate_route_api():
 
     # Afficher le résultat à l'utilisateur
     distances_matrix = dm.get_distances_matrix(positions)
-    return get_optimal_route(positions, distances_matrix = distances_matrix)
+
+    optimal_route = get_optimal_route(positions, distances_matrix = distances_matrix)
+
+    route = dm.get_route(optimal_route)
+    geometry = route['features'][0]['geometry']['coordinates']
+    latLng = [[lng, lat] for lat, lng in geometry]
+
+    return {'optimal_route': optimal_route, 'route': latLng}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

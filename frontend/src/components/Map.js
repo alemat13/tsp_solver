@@ -9,7 +9,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
-function Map({positions, bestRoute}) {
+function Map({positions, route}) {
     const center = positions.length === 0 ? [48.8606, 2.3376] : positions[0];
     return <MapContainer center={center} zoom={13} style={{ height: '400px' }}>
         <TileLayer
@@ -23,9 +23,9 @@ function Map({positions, bestRoute}) {
                 </Marker>
             );
         })}
-        {(bestRoute.length > 1) && <Polyline
+        {(route.length > 1) && <Polyline
             pathOptions={{ color: 'red' }}
-            positions={bestRoute} />}
+            positions={route} />}
     </MapContainer>;
 }
 
