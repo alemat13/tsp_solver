@@ -1,5 +1,5 @@
 import requests
-class DistanceMatrix:
+class OpenRouteService:
     def __init__(self, api_key, proxies = None, verifySsl = True):
         self.api_key = api_key
         self.proxies = proxies
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         "https": config['proxies']['https'],
     }
     api_key = config['api_keys']['openrouteservice_api_key']
-    dm = DistanceMatrix(api_key=api_key, proxies=proxies, verifySsl=False)
+    dm = OpenRouteServices(api_key=api_key, proxies=proxies, verifySsl=False)
 
     locations = [
         [2.294481, 48.858370], # Eiffel Tower

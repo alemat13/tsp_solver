@@ -1,6 +1,6 @@
 from flask import Flask, Response, render_template, request
 from flask_cors import CORS
-from openrouteservice import DistanceMatrix
+from openrouteservice import OpenRouteService
 import configparser
 
 app = Flask(__name__)
@@ -80,7 +80,7 @@ def calculate_route_api():
 
     api_key = config['api_keys']['openrouteservice_api_key']
 
-    dm = DistanceMatrix(api_key=api_key, proxies=proxies, verifySsl=False)
+    dm = OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=False)
 
     # Afficher le résultat à l'utilisateur
     distances_matrix = dm.get_distances_matrix(positions)

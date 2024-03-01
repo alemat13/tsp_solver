@@ -1,1 +1,1 @@
-from .matrix import DistanceMatrix
+from .matrix import OpenRouteService
