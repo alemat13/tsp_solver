@@ -3,12 +3,17 @@ import configparser
 
 def load_config():
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read('../config.ini')
     return config
 
 config = load_config()
 
 api_key = config['api_keys']['openrouteservice_api_key']
+
+proxies = {
+    'http': config['proxies']['http'],
+    'https': config['proxies']['https']
+}
 
 def get_distance_matrix(locations, metrics = ["distance"], units = "m"):
 
@@ -19,7 +24,7 @@ def get_distance_matrix(locations, metrics = ["distance"], units = "m"):
         'Authorization': api_key,
         'Content-Type': 'application/json; charset=utf-8'
     }
-    call = requests.post('https://api.openrouteservice.org/v2/matrix/foot-walking', json=body, headers=headers)
+    call = requests.post('https://api.openrouteservice.org/v2/matrix/foot-walking', json=body, headers=headers, proxies=proxies, verify=False)
 
     return call
 
