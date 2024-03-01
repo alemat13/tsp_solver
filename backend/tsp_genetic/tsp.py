@@ -21,23 +21,23 @@ def distance(coord1, coord2):
     distance = R * c
     return distance
 
-def calculate_distance_matrix(coords):
+def calculate_distances_matrix(coords):
     # Création d'une matrice de distances
     num_points = len(coords)
-    distance_matrix = np.zeros((num_points, num_points))
+    distances_matrix = np.zeros((num_points, num_points))
     for i in range(num_points):
         for j in range(num_points):
             if i != j:
-                distance_matrix[i][j] = distance(coords[i], coords[j])
-    return distance_matrix
+                distances_matrix[i][j] = distance(coords[i], coords[j])
+    return distances_matrix
 
-def evaluate_path(individual, coords, distance_matrix = None):
+def evaluate_path(individual, coords, distances_matrix = None):
     # Calcul de la longueur totale du chemin
     total_distance = 0
     for i in range(len(individual) - 1):
         # total_distance += geodesic(coords[individual[i]], coords[individual[i+1]]).meters
-        if distance_matrix is not None:
-            total_distance += distance_matrix[individual[i]][individual[i+1]]
+        if distances_matrix is not None:
+            total_distance += distances_matrix[individual[i]][individual[i+1]]
         else:
             total_distance += distance(coords[individual[i]], coords[individual[i+1]])
     return total_distance,
@@ -49,7 +49,7 @@ def solve_tsp_genetic(coords, population_size=100, num_generations=100, distance
 
     # Calcul de la matrice de distances
     if distances_matrix is None:
-        distance_matrix = calculate_distance_matrix(coords)
+        distances_matrix = calculate_distances_matrix(coords)
 
     # Initialisation de la boîte à outils
     toolbox = base.Toolbox()
@@ -59,7 +59,7 @@ def solve_tsp_genetic(coords, population_size=100, num_generations=100, distance
     toolbox.register("mate", tools.cxOrdered)
     toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
     toolbox.register("select", tools.selTournament, tournsize=3)
-    toolbox.register("evaluate", evaluate_path, coords=coords, distance_matrix=distance_matrix)
+    toolbox.register("evaluate", evaluate_path, coords=coords, distances_matrix=distances_matrix)
 
     # Création de la population initiale
     population = toolbox.population(n=population_size)

@@ -83,7 +83,8 @@ def calculate_route_api():
     dm = DistanceMatrix(api_key=api_key, proxies=proxies, verifySsl=False)
 
     # Afficher le résultat à l'utilisateur
-    return get_optimal_route(positions, distances_matrix = dm.get_distance_matrix(positions))
+    distances_matrix = dm.get_distances_matrix(positions)
+    return get_optimal_route(positions, distances_matrix = distances_matrix)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

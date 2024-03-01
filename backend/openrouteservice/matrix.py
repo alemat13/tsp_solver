@@ -5,8 +5,12 @@ class DistanceMatrix:
         self.proxies = proxies
         self.verifySsl = verifySsl
 
-    def get_distance_matrix(self, locations, metrics = ["distance"], units = "m"):
-        body = {"locations": locations,"metrics":metrics,"units":units}
+    def get_distances_matrix(self, locations, metrics = ["distance"], units = "m"):
+        # Inverse latitude and longitude
+        lngLat = [[lng, lat] for lat, lng in locations]
+
+        # Prepare the request body
+        body = {"locations": lngLat,"metrics":metrics,"units":units}
 
         headers = {
             'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
@@ -52,8 +56,6 @@ if __name__ == '__main__':
         [2.301944, 48.873889], # Champs-Élysées
     ]
 
-    distances = dm.get_distance_matrix(locations)
+    distances = dm.get_distances_matrix(locations)
 
     print(distances)
-
-    # Utilisez dm.get_distance_matrix() pour obtenir la matrice de distance
