@@ -42,13 +42,14 @@ def evaluate_path(individual, coords, distance_matrix = None):
             total_distance += distance(coords[individual[i]], coords[individual[i+1]])
     return total_distance,
 
-def solve_tsp_genetic(coords, population_size=100, num_generations=100):
+def solve_tsp_genetic(coords, population_size=100, num_generations=100, distances_matrix=None):
     # Définition du type de problème (minimisation)
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", list, fitness=creator.FitnessMin)
 
     # Calcul de la matrice de distances
-    distance_matrix = calculate_distance_matrix(coords)
+    if distances_matrix is None:
+        distance_matrix = calculate_distance_matrix(coords)
 
     # Initialisation de la boîte à outils
     toolbox = base.Toolbox()

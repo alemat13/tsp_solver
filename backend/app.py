@@ -1,5 +1,7 @@
 from flask import Flask, Response, render_template, request
 from flask_cors import CORS
+from openrouteservice import DistanceMatrix
+import configparser
 
 app = Flask(__name__)
 CORS(app)
@@ -15,9 +17,14 @@ def get_solver_tour_concorde(points):
     tour_data = solver.solve()
     return tour_data.tour
 
-def get_solver_tour_genetic(points, population_size=100, num_generations=100):
+def get_config():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    return config
+
+def get_solver_tour_genetic(points, population_size=100, num_generations=100, distances_matrix=None):
     from tsp_genetic import solve_tsp_genetic
-    return solve_tsp_genetic(points, population_size, num_generations)
+    return solve_tsp_genetic(points, population_size, num_generations, distances_matrix)
 
 @app.route('/generate_kml', methods=['POST'])
 def generate_kml():
@@ -48,12 +55,12 @@ def generate_kml():
         headers={'Content-Disposition': 'attachment; filename=' + 'map.kml'}
     )
 
-def get_optimal_route(points):
+def get_optimal_route(points, distances_matrix = None):
 # Calculer le chemin optimal avec Concorde
     try:
         tour_indices = get_solver_tour_concorde(points)
     except ImportError:
-        tour_indices = get_solver_tour_genetic(points, population_size=1000, num_generations=300)
+        tour_indices = get_solver_tour_genetic(points, population_size=1000, num_generations=300, distances_matrix=distances_matrix)
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
@@ -63,12 +70,20 @@ def calculate_route_api():
     
     # Récupérer les positions GPS entrées par l'utilisateur
     positions = request.json
-
-    # Convertir les positions en un format utilisable par Concorde
-    # points = [(float(pos.split(',')[0]), float(pos.split(',')[1])) for pos in positions]
     
+    config = get_config()
+    
+    proxies = {
+        "http": config['proxies']['http'],
+        "https": config['proxies']['https'],
+    }
+
+    api_key = config['api_keys']['openrouteservice_api_key']
+
+    dm = DistanceMatrix(api_key=api_key, proxies=proxies, verifySsl=False)
+
     # Afficher le résultat à l'utilisateur
-    return get_optimal_route(positions)
+    return get_optimal_route(positions, distances_matrix = dm.get_distance_matrix(positions))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

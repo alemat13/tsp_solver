@@ -1,35 +1,59 @@
 import requests
-import configparser
+class DistanceMatrix:
+    def __init__(self, api_key, proxies = None, verifySsl = True):
+        self.api_key = api_key
+        self.proxies = proxies
+        self.verifySsl = verifySsl
 
-def load_config():
-    config = configparser.ConfigParser()
-    config.read('../config.ini')
-    return config
+    def get_distance_matrix(self, locations, metrics = ["distance"], units = "m"):
+        body = {"locations": locations,"metrics":metrics,"units":units}
 
-config = load_config()
+        headers = {
+            'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            'Authorization': self.api_key,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+        call = requests.post(
+            url='https://api.openrouteservice.org/v2/matrix/foot-walking',
+            json=body,
+            headers=headers,
+            proxies=self.proxies,
+            verify=self.verifySsl
+        )
 
-api_key = config['api_keys']['openrouteservice_api_key']
-
-proxies = {
-    'http': config['proxies']['http'],
-    'https': config['proxies']['https']
-}
-
-def get_distance_matrix(locations, metrics = ["distance"], units = "m"):
-
-    body = {"locations": locations,"metrics":metrics,"units":units}
-
-    headers = {
-        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-        'Authorization': api_key,
-        'Content-Type': 'application/json; charset=utf-8'
-    }
-    call = requests.post('https://api.openrouteservice.org/v2/matrix/foot-walking', json=body, headers=headers, proxies=proxies, verify=False)
-
-    return call
+        return call.json()['distances']
 
 if __name__ == '__main__':
-    locations = [[5.7241337,45.1927082],[5.7276335,45.1923528],[5.7312989,45.1927815],[5.7303273,45.190505],[5.7288681,45.1901419],[5.722275542580971,45.18946774017792],[5.72262,45.1888785],[5.7222437,45.1844299],[5.7298279,45.1929344],[5.729377662091173,45.19412370338205],[5.7249596,45.1885153],[5.729541,45.1956682],[5.7294176,45.1858907],[5.732696862806339,45.1857402421105],[5.72043050891585,45.18790477844567],[5.7154621,45.1882061],[5.7249841,45.1878761],[5.731385511464836,45.183088097550005],[5.7317345,45.1784992],[5.732915553600719,45.183538601634616],[5.717645647246,45.18384815347046],[5.7290119,45.1901565],[5.7252064,45.1812158],[5.7223946,45.185285],[5.73039,45.1875416],[5.7225127,45.1872193],[5.7216322,45.187766],[5.7227005,45.1864809],[5.7311847,45.1900691],[5.72551128393816,45.18782204173335],[5.7242715,45.1884521],[5.7247638067681965,45.18626338408303],[5.733160388185168,45.16034162151203],[5.729543182928358,45.190409471933364],[5.7199322,45.1923385],[5.7148066,45.1914412],[5.7158568,45.18834],[5.7046399563029215,45.18808306201395],[5.728594554063724,45.194953267718205],[5.7275207,45.1913421],[5.726195,45.1884172],[5.7280363,45.1913847],[5.7153759,45.1882734],[5.722553545948388,45.186471043050005],[5.717969129671103,45.18375911455437],[5.7180958,45.1862447],[5.719531872813501,45.193566237451314],[5.7251179,45.1886027],[5.7163568,45.1805886],[5.7230741,45.1944309],[5.7409653,45.2045168],[5.755230342078453,45.1612091479491],[5.748162792029979,45.155836175556225]]
-    call = get_distance_matrix(locations)
-    print(call.status_code, call.reason)
-    print(call.text)
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('../config.ini')
+    proxies = {
+        "http": config['proxies']['http'],
+        "https": config['proxies']['https'],
+    }
+    api_key = config['api_keys']['openrouteservice_api_key']
+    dm = DistanceMatrix(api_key=api_key, proxies=proxies, verifySsl=False)
+
+    locations = [
+        [2.294481, 48.858370], # Eiffel Tower
+        [2.337622, 48.860611], # Louvre Museum
+        [2.349014, 48.853000], # Notre-Dame Cathedral
+        [2.326705, 48.859961], # Musée d'Orsay
+        [2.342620, 48.886217], # Montmartre
+        [2.295054, 48.873792], # Arc de Triomphe
+        [2.321956, 48.865496], # Concorde Square
+        [2.369839, 48.853400], # Bastille
+        [2.393376, 48.861393], # Père Lachaise Cemetery
+        [2.331389, 48.872500], # Palais Garnier
+        [2.367500, 48.855833], # Place des Vosges
+        [2.345833, 48.855556], # Sainte-Chapelle
+        [2.346111, 48.846389], # Pantheon
+        [2.337500, 48.846389], # Luxembourg Gardens
+        [2.301944, 48.873889], # Champs-Élysées
+    ]
+
+    distances = dm.get_distance_matrix(locations)
+
+    print(distances)
+
+    # Utilisez dm.get_distance_matrix() pour obtenir la matrice de distance
