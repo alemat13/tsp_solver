@@ -72,11 +72,15 @@ def calculate_route_api():
     positions = request.json
     
     config = get_config()
-    
-    proxies = {
-        "http": config['proxies']['http'],
-        "https": config['proxies']['https'],
-    }
+
+    # Check if config['proxies'] is defined
+    if 'proxies' in config:
+        proxies = {
+            "http": config['proxies']['http'],
+            "https": config['proxies']['https'],
+        }
+    else:
+        proxies = None
 
     api_key = config['api_keys']['openrouteservice_api_key']
 
