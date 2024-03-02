@@ -1,9 +1,10 @@
 import requests
 class OpenRouteService:
-    def __init__(self, api_key, proxies = None, verifySsl = True):
+    def __init__(self, api_key, proxies = None, verifySsl = True, logger = None):
         self.api_key = api_key
         self.proxies = proxies
         self.verifySsl = verifySsl
+        self.logger = logger
 
     def get_distances_matrix(self, locations, metrics = ["distance"], units = "m"):
         # Inverse latitude and longitude
@@ -28,7 +29,7 @@ class OpenRouteService:
         try:
             return call.json()['distances']
         except:
-            print(call.json())
+            self.logger.debug(call.json())
             return None
     
     # Get route between points in GeoJSON format
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     ]
 
     distances = dm.get_distances_matrix(locations)
-    print(distances)
+    app.logger.debug(distances)
 
     route = dm.get_route(locations)
-    print(route)
+    app.logger.debug(route)
