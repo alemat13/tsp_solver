@@ -49,6 +49,11 @@ class OpenRouteService:
             verify=self.verifySsl
         )
         return call.json()
+    
+    def get_geometry(self, locations):
+        route = self.get_route(locations)
+        geometry = route['features'][0]['geometry']['coordinates']
+        return [[lng, lat] for lat, lng in geometry]
 
 if __name__ == '__main__':
     import configparser
