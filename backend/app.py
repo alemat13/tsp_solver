@@ -38,8 +38,7 @@ def calculate_route_api():
     positions = request.json
     return calculate_route(positions)
 
-def calculate_route(positions):
-
+def get_open_route_service():
     config = get_config()
 
     # Check if config['proxies'] is defined
@@ -53,34 +52,27 @@ def calculate_route(positions):
 
     api_key = config['api_keys']['openrouteservice_api_key']
 
-    dm = OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=True)
+    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=True)
+
+def calculate_route(positions):
+    ors = get_open_route_service()
 
     # Afficher le résultat à l'utilisateur
-    distances_matrix = dm.get_distances_matrix(positions)
+    distances_matrix = ors.get_distances_matrix(positions)
+    
+    # transform float to int
+    distances_matrix = [[int(j) for j in i] for i in distances_matrix]
+    print(distances_matrix)
 
     optimal_route = get_optimal_route(
         positions, distances_matrix=distances_matrix)
-    app.logger.debug(optimal_route)
 
-    route = dm.get_route(optimal_route)
-    geometry = route['features'][0]['geometry']['coordinates']
-    latLng = [[lng, lat] for lat, lng in geometry]
+    geometry = ors.get_geometry(optimal_route)
 
-    return {'optimal_route': optimal_route, 'route': latLng}
+    return {'optimal_route': optimal_route, 'route': geometry, 'distances_matrix': distances_matrix}
 
 
 if __name__ == '__main__':
-    positions = [
-        [48.8606, 2.3376],
-        [48.853, 2.3499],
-        [48.8738, 2.295],
-        [48.8867, 2.3431],
-        [48.86, 2.3267],
-        [48.8698, 2.3075],
-        [48.8635, 2.3274],
-        [48.8462, 2.3447],
-        [48.8656, 2.3212],
-        [48.8556, 2.3158]
-    ]
+    
     # todo : write test for positions
     app.run(debug=True, host='0.0.0.0')
