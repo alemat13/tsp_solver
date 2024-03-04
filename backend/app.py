@@ -59,10 +59,6 @@ def calculate_route(positions):
 
     # Afficher le résultat à l'utilisateur
     distances_matrix = ors.get_distances_matrix(positions)
-    
-    # transform float to int
-    distances_matrix = [[int(j) for j in i] for i in distances_matrix]
-    print(distances_matrix)
 
     optimal_route = get_optimal_route(
         positions, distances_matrix=distances_matrix)

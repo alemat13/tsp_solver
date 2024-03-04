@@ -12,9 +12,10 @@ def get_solver_tour_concorde(points, distances_matrix = None, logger = None):
             norm="GEO"
         )
     else:
+        distances_matrix_int = [[int(j) for j in i] for i in distances_matrix]
         ccdir = tempfile.mkdtemp()
         ccfile = os.path.join(ccdir, "data.tsp")
-        Problem.from_matrix(distances_matrix).to_tsp(ccfile)
+        Problem.from_matrix(distances_matrix_int).to_tsp(ccfile)
         solver = TSPSolver.from_tspfile(ccfile)
     try:
         tour_data = solver.solve()
