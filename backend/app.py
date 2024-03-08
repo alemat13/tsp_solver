@@ -1,10 +1,11 @@
-import sys
-from flask import Flask, Response, render_template, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from openrouteservice import OpenRouteService
 import configparser
 
-app = Flask(__name__)
+REACT_BUILD_DIR = '../frontend/build'
+
+app = Flask(__name__, static_folder=REACT_BUILD_DIR, static_url_path='/')
 CORS(app)
 
 
@@ -33,10 +34,6 @@ def get_optimal_route(points, distances_matrix=None):
     return [points[i] for i in tour_indices]
 
 
-@app.route('/api/calculate', methods=['POST', 'GET'])
-def calculate_route_api():
-    positions = request.json
-    return calculate_route(positions)
 
 def get_open_route_service():
     config = get_config()
@@ -52,7 +49,9 @@ def get_open_route_service():
 
     api_key = config['api_keys']['openrouteservice_api_key']
 
-    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=True)
+    sslVerify = config['ssl']['verify']
+
+    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
 
 def calculate_route(positions):
     ors = get_open_route_service()
@@ -67,6 +66,24 @@ def calculate_route(positions):
 
     return {'optimal_route': optimal_route, 'route': geometry, 'distances_matrix': distances_matrix}
 
+@app.route('/api/calculate', methods=['POST', 'GET'])
+def calculate_route_api():
+    positions = request.json
+    return calculate_route(positions)
+
+@app.route('/static/<path:path>')
+def serve_static(path):
+    print('serve_static', path)
+    return send_from_directory(f'{REACT_BUILD_DIR}/static', path)
+@app.route('/', defaults={'path': ''})
+
+@app.route('/<path:path>')
+def serve(path):
+    print('serve', path)
+    if path != "" and path != "favicon.ico":
+        return send_from_directory(f'{REACT_BUILD_DIR}', path)
+    else:
+        return send_from_directory(f'{REACT_BUILD_DIR}', 'index.html')
 
 if __name__ == '__main__':
     
