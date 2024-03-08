@@ -1,39 +1,35 @@
-FROM node:20 as build
+# Stage 1: Build the React frontend
+FROM node:20 as builder
 
 WORKDIR /app
 
-COPY frontend/package*.json ./frontend/
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
 
-RUN cd /app/frontend && npm install
+COPY frontend/public ./public
+COPY frontend/src ./src
 
-COPY . /app
+RUN npm run build
 
-RUN cd /app/frontend && npm build
-
-# Utiliser l'image Python officielle comme image de base
+# Stage 2: Setup Flask server to serve frontend and API
 FROM python:3.12
 
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
 # Copier le fichier requirements.txt dans le conteneur
-COPY requirements.txt .
+COPY backend/requirements.txt /app/backend
 
 # Installer les dépendances Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copier le reste des fichiers dans le conteneur
-COPY . .
+# Copy built frontend from the previous stage
+COPY --from=builder /app/build /app/frontend
 
+# Copy backend code
+COPY backend /app/backend
+
+# Expose port for Flask server
 EXPOSE 5000
 
-# Commande par défaut à exécuter lors du démarrage du conteneur
-CMD [ "python", "./app.py" ]
-
-FROM nginx:alpine
-
-COPY --from=build /app/build /usr/share/nginx/html
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Define the command to run the Flask server
+CMD ["python", "backend/app.py"]
