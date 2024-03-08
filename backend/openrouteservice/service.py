@@ -6,7 +6,10 @@ class OpenRouteService:
         self.verifySsl = verifySsl
         self.logger = logger
 
-    def get_distances_matrix(self, locations, metrics = ["distance"], units = "m"):
+    def get_distances_matrix(self, locations, metrics = ["distance"], units = "m", profile = "foot-walking"):
+        # Check if profile is valid
+        self._check_profile(profile)
+        
         # Inverse latitude and longitude
         lngLat = [[lng, lat] for lat, lng in locations]
 
@@ -19,7 +22,7 @@ class OpenRouteService:
             'Content-Type': 'application/json; charset=utf-8'
         }
         call = requests.post(
-            url='https://api.openrouteservice.org/v2/matrix/foot-walking',
+            url=f'https://api.openrouteservice.org/v2/matrix/{profile}',
             json=body,
             headers=headers,
             proxies=self.proxies,
@@ -32,26 +35,41 @@ class OpenRouteService:
             self.logger.debug(call.json())
             return None
     
+    # Function to check if the profile is valid
+    def _check_profile(self, profile):
+        if profile not in ['foot-walking', 'cycling-regular', 'driving-car', 'driving-hgv', 'wheelchair', 'cycling-road', 'cycling-mountain', 'cycling-electric', 'cycling-safe', 'cycling-tour', 'cycling-mountain']:
+            raise ValueError(f'Invalid profile: {profile}')
+
     # Get route between points in GeoJSON format
-    def get_route(self, locations):
+    def get_route(self, locations, profile = "foot-walking"):
+        # check if profile is valid
+        self._check_profile(profile)
+        
+        # Inverse latitude and longitude
         lngLat = [[lng, lat] for lat, lng in locations]
+
+        # Prepare the request body & headers
         body = {"coordinates": lngLat}
         headers = {
             'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
             'Authorization': self.api_key,
             'Content-Type': 'application/json; charset=utf-8'
         }
+
+        # Make the request
         call = requests.post(
-            url='https://api.openrouteservice.org/v2/directions/foot-walking/geojson',
+            url=f'https://api.openrouteservice.org/v2/directions/{profile}/geojson',
             json=body,
             headers=headers,
             proxies=self.proxies,
             verify=self.verifySsl
         )
+
+        # Return the result
         return call.json()
     
-    def get_geometry(self, locations):
-        route = self.get_route(locations)
+    def get_geometry(self, locations, profile = "foot-walking"):
+        route = self.get_route(locations, profile=profile)
         geometry = route['features'][0]['geometry']['coordinates']
         return [[lng, lat] for lat, lng in geometry]
 

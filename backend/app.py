@@ -28,7 +28,7 @@ def get_optimal_route(points, distances_matrix=None):
             points, distances_matrix=distances_matrix)
     except ImportError:
         tour_indices = get_solver_tour_genetic(
-            points, population_size=1000, num_generations=300, distances_matrix=distances_matrix)
+            points, population_size=10000, num_generations=300, distances_matrix=distances_matrix)
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
@@ -53,11 +53,11 @@ def get_open_route_service():
 
     return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
 
-def calculate_route(positions):
+def calculate_route(positions, profile='foot-walking'):
     ors = get_open_route_service()
 
     # Afficher le résultat à l'utilisateur
-    distances_matrix = ors.get_distances_matrix(positions)
+    distances_matrix = ors.get_distances_matrix(positions, profile=profile)
 
     optimal_route = get_optimal_route(
         positions, distances_matrix=distances_matrix)
@@ -69,7 +69,8 @@ def calculate_route(positions):
 @app.route('/api/calculate', methods=['POST', 'GET'])
 def calculate_route_api():
     positions = request.json
-    return calculate_route(positions)
+    profile = 'foot-walking'
+    return calculate_route(positions, profile=profile)
 
 @app.route('/static/<path:path>')
 def serve_static(path):
