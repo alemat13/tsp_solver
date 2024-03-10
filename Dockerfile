@@ -14,22 +14,22 @@ RUN npm run build
 # Stage 2: Setup Flask server to serve frontend and API
 FROM python:3.12
 
-WORKDIR /app
+WORKDIR /app/backend
 
 # Copier le fichier requirements.txt dans le conteneur
-COPY backend/requirements.txt /app/backend
+COPY backend/requirements.txt ./
 
 # Installer les dépendances Python
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy built frontend from the previous stage
-COPY --from=builder /app/build /app/frontend
+COPY --from=builder /app/build ../frontend/build
 
 # Copy backend code
-COPY backend /app/backend
+COPY backend ./
 
 # Expose port for Flask server
 EXPOSE 5000
 
 # Define the command to run the Flask server
-CMD ["python", "backend/app.py"]
+CMD ["python", "app.py"]

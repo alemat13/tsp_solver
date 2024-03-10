@@ -47,9 +47,15 @@ def get_open_route_service():
     else:
         proxies = None
 
-    api_key = config['api_keys']['openrouteservice_api_key']
+    try:
+        api_key = config['api_keys']['openrouteservice_api_key']
+    except KeyError:
+        return {'error': 'No API key found in config.ini'}
 
-    sslVerify = config['ssl']['verify']
+    try:
+        sslVerify = config['ssl']['verify']
+    except KeyError:
+        sslVerify = 'true'
 
     return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
 
