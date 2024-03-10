@@ -82,7 +82,7 @@ function App() {
   return (
     <div>
       <button onClick={() => setShowParametersBox(!showParametersBox)}>
-        Show Parameters
+        {showParametersBox ? 'Hide': 'Show'} Parameters
       </button>
       {showParametersBox && (
         <div>
