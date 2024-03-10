@@ -35,7 +35,7 @@ def get_optimal_route(points, distances_matrix=None):
 
 
 
-def get_open_route_service():
+def get_open_route_service(api_key=None):
     config = get_config()
 
     # Check if config['proxies'] is defined
@@ -47,10 +47,11 @@ def get_open_route_service():
     else:
         proxies = None
 
-    try:
-        api_key = config['api_keys']['openrouteservice_api_key']
-    except KeyError:
-        return {'error': 'No API key found in config.ini'}
+    if api_key is None:
+        try:
+            api_key = config['api_keys']['openrouteservice_api_key']
+        except KeyError:
+            return {'error': 'No API key found in config.ini'}
 
     try:
         sslVerify = config['ssl']['verify']
@@ -59,8 +60,8 @@ def get_open_route_service():
 
     return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
 
-def calculate_route(positions, profile='foot-walking'):
-    ors = get_open_route_service()
+def calculate_route(positions, profile='foot-walking', api_key=None):
+    ors = get_open_route_service(api_key=api_key)
 
     # Afficher le résultat à l'utilisateur
     distances_matrix = ors.get_distances_matrix(positions, profile=profile)
@@ -74,9 +75,10 @@ def calculate_route(positions, profile='foot-walking'):
 
 @app.route('/api/calculate', methods=['POST', 'GET'])
 def calculate_route_api():
-    positions = request.json
+    positions = request.json['positions']
+    api_key = request.json['parameters']['api_key'] or None
     profile = 'foot-walking'
-    return calculate_route(positions, profile=profile)
+    return calculate_route(positions, profile=profile, api_key=api_key)
 
 @app.route('/static/<path:path>')
 def serve_static(path):
