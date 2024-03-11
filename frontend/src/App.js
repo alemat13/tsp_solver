@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Map from "./components/Map";
+import ParameterBox from "./components/ParameterBox";
 import "./App.css";
 
 function App() {
@@ -17,8 +18,7 @@ function App() {
     "",
   ]);
   const [route, setRoute] = useState({ optimal_route: [], route: [] });
-  const [parameters, setParameters] = useState({ api_key: "your_api_key" });
-  const [showParametersBox, setShowParametersBox] = useState(false);
+  const [parameters, setParameters] = useState({ api_key: "" });
 
   // function that validate GPS coordinates user input
   // const validateGPS = (input) => {
@@ -81,19 +81,9 @@ function App() {
 
   return (
     <div>
-      <button onClick={() => setShowParametersBox(!showParametersBox)}>
-        {showParametersBox ? 'Hide': 'Show'} Parameters
-      </button>
-      {showParametersBox && (
-        <div>
-          <label>API Key:</label>
-          <input
-            type="text"
-            value={parameters["api_key"]}
-            onChange={(e) => setParameters({ api_key: e.target.value })}
-          />
-        </div>
-      )}
+      <ParameterBox
+        parameters={parameters}
+        setParameters={setParameters} />
       <h1>Optimize GPS Positions</h1>
       <form onSubmit={handleSubmit}>
         <label>Enter GPS Positions:</label>
@@ -141,3 +131,5 @@ function App() {
 }
 
 export default App;
+
+
