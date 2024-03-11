@@ -4,6 +4,8 @@ import ParameterBox from "./components/ParameterBox";
 import "./App.css";
 
 function App() {
+  const API_HOST = process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
+  const API_ENDPOINT = `${API_HOST}/api/calculate`;
   const [positions, setPositions] = useState([
     "48.8606, 2.3376",
     "48.8530, 2.3499",
@@ -33,7 +35,7 @@ function App() {
     localStorage.setItem("parameters", JSON.stringify(parameters));
 
     try {
-      const response = await fetch("api/calculate", {
+      const response = await fetch(API_ENDPOINT, {
         method: "POST",
         body: JSON.stringify({
           positions: positionsObj,
