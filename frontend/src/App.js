@@ -4,7 +4,8 @@ import ParameterBox from "./components/ParameterBox";
 import "./App.css";
 
 function App() {
-  const API_HOST = process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
+  const API_HOST =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
   const API_ENDPOINT = `${API_HOST}/api/calculate`;
   const [positions, setPositions] = useState([
     "48.8606, 2.3376",
@@ -19,8 +20,15 @@ function App() {
     "48.8556, 2.3158",
     "",
   ]);
-  const [route, setRoute] = useState({ optimal_route: [], route: [] });
-  const [parameters, setParameters] = useState({ api_key: "" });
+  const [route, setRoute] = useState({
+    optimal_route: [],
+    route: [],
+    openrouteservice_data: {},
+  });
+  const [parameters, setParameters] = useState({
+    api_key: "",
+    profile: "foot-walking",
+  });
 
   // function that validate GPS coordinates user input
   // const validateGPS = (input) => {
@@ -83,9 +91,7 @@ function App() {
 
   return (
     <div>
-      <ParameterBox
-        parameters={parameters}
-        setParameters={setParameters} />
+      <ParameterBox parameters={parameters} setParameters={setParameters} />
       <h1>Optimize GPS Positions</h1>
       <form onSubmit={handleSubmit}>
         <label>Enter GPS Positions:</label>
@@ -133,5 +139,3 @@ function App() {
 }
 
 export default App;
-
-

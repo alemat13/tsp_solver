@@ -28,7 +28,7 @@ def get_optimal_route(points, distances_matrix=None):
             points, distances_matrix=distances_matrix)
     except ImportError:
         tour_indices = get_solver_tour_genetic(
-            points, population_size=10000, num_generations=300, distances_matrix=distances_matrix)
+            points, population_size=1000, num_generations=300, distances_matrix=distances_matrix)
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
@@ -69,15 +69,27 @@ def calculate_route(positions, profile='foot-walking', api_key=None):
     optimal_route = get_optimal_route(
         positions, distances_matrix=distances_matrix)
 
-    geometry = ors.get_geometry(optimal_route)
+    ors_resp = ors.get_directions(optimal_route, profile=profile)
+    geometry = ors_resp.get_geometry()
 
-    return {'optimal_route': optimal_route, 'route': geometry, 'distances_matrix': distances_matrix}
+    return {'optimal_route': optimal_route, 'route': geometry, 'distances_matrix': distances_matrix, 'ors_resp': ors_resp.response}
 
 @app.route('/api/calculate', methods=['POST', 'GET'])
 def calculate_route_api():
     positions = request.json['positions']
-    api_key = request.json['parameters']['api_key'] or None
-    profile = 'foot-walking'
+    # check if positions has at least 2 points
+    if len(positions) < 2:
+        return {'error': 'At least 2 positions are required'}
+    try:
+        api_key = request.json['parameters']['api_key']
+    except KeyError:
+        return {'error': 'No API key provided'}
+    
+    try:
+        profile = request.json['parameters']['profile']
+    except KeyError:
+        return {'error': 'No profile provided'}
+    
     return calculate_route(positions, profile=profile, api_key=api_key)
 
 @app.route('/static/<path:path>')

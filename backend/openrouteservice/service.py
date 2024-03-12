@@ -41,7 +41,8 @@ class OpenRouteService:
             raise ValueError(f'Invalid profile: {profile}')
 
     # Get route between points in GeoJSON format
-    def get_route(self, locations, profile = "foot-walking"):
+    def get_directions(self, locations, profile = "foot-walking"):
+        
         # check if profile is valid
         self._check_profile(profile)
         
@@ -66,44 +67,15 @@ class OpenRouteService:
         )
 
         # Return the result
-        return call.json()
-    
-    def get_geometry(self, locations, profile = "foot-walking"):
-        route = self.get_route(locations, profile=profile)
-        geometry = route['features'][0]['geometry']['coordinates']
+        return OpenRouteService_response(call.json())
+
+class OpenRouteService_response:
+    def __init__(self, response):
+        self.response = response
+    def get_geometry(self):
+        geometry = self.response['features'][0]['geometry']['coordinates']
         return [[lng, lat] for lat, lng in geometry]
-
-if __name__ == '__main__':
-    import configparser
-    config = configparser.ConfigParser()
-    config.read('../config.ini')
-    proxies = {
-        "http": config['proxies']['http'],
-        "https": config['proxies']['https'],
-    }
-    api_key = config['api_keys']['openrouteservice_api_key']
-    dm = OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=False)
-
-    locations = [
-        [48.858370, 2.294481], # Eiffel Tower
-        [48.860611, 2.337622], # Louvre Museum
-        [48.853000, 2.349014], # Notre-Dame Cathedral
-        [48.859961, 2.326705], # Musée d'Orsay
-        [48.886217, 2.342620], # Montmartre
-        [48.873792, 2.295054], # Arc de Triomphe
-        [48.865496, 2.321956], # Concorde Square
-        [48.853400, 2.369839], # Bastille
-        [48.861393, 2.393376], # Père Lachaise Cemetery
-        [48.872500, 2.331389], # Palais Garnier
-        [48.855833, 2.367500], # Place des Vosges
-        [48.855556, 2.345833], # Sainte-Chapelle
-        [48.846389, 2.346111], # Pantheon
-        [48.846389, 2.337500], # Luxembourg Gardens
-        [48.873889, 2.301944], # Champs-Élysées
-    ]
-
-    distances = dm.get_distances_matrix(locations)
-    app.logger.debug(distances)
-
-    route = dm.get_route(locations)
-    app.logger.debug(route)
+    def get_response(self):
+        return self.response
+    def get_distances_matrix(self):
+        return self.response['distances']
