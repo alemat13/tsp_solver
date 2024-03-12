@@ -20,7 +20,7 @@ def get_solver_tour_genetic(points, population_size=100, num_generations=100, di
     return solve_tsp_genetic(points, population_size, num_generations, distances_matrix)
 
 
-def get_optimal_route(points, distances_matrix=None):
+def get_optimal_route(points, distances_matrix=None, population_size = 1000, num_generations = 300):
     # Calculer le chemin optimal avec Concorde
     try:
         from app_utils import get_solver_tour_concorde
@@ -28,7 +28,11 @@ def get_optimal_route(points, distances_matrix=None):
             points, distances_matrix=distances_matrix)
     except ImportError:
         tour_indices = get_solver_tour_genetic(
-            points, population_size=1000, num_generations=300, distances_matrix=distances_matrix)
+            points,
+            population_size=population_size,
+            num_generations=num_generations,
+            distances_matrix=distances_matrix
+        )
 
     # Renvoyer les positions dans l'ordre du chemin optimal
     return [points[i] for i in tour_indices]
@@ -60,14 +64,18 @@ def get_open_route_service(api_key=None):
 
     return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
 
-def calculate_route(positions, profile='foot-walking', api_key=None):
+def calculate_route(positions, profile='foot-walking', api_key=None, num_generations=300, population_size=1000):
     ors = get_open_route_service(api_key=api_key)
 
     # Afficher le résultat à l'utilisateur
     distances_matrix = ors.get_distances_matrix(positions, profile=profile)
 
     optimal_route = get_optimal_route(
-        positions, distances_matrix=distances_matrix)
+        positions,
+        distances_matrix=distances_matrix,
+        num_generations=num_generations,
+        population_size=population_size
+    )
 
     ors_resp = ors.get_directions(optimal_route, profile=profile)
     geometry = ors_resp.get_geometry()
@@ -90,7 +98,23 @@ def calculate_route_api():
     except KeyError:
         return {'error': 'No profile provided'}
     
-    return calculate_route(positions, profile=profile, api_key=api_key)
+    try:
+        population_size = int(request.json['parameters']['population_size'])
+    except KeyError:
+        population_size = 1000
+
+    try:
+        num_generations = int(request.json['parameters']['num_generations'])
+    except KeyError:
+        num_generations = 300
+    
+    return calculate_route(
+        positions,
+        profile=profile,
+        api_key=api_key,
+        population_size=population_size,
+        num_generations=num_generations
+    )
 
 @app.route('/static/<path:path>')
 def serve_static(path):

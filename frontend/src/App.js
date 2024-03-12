@@ -28,6 +28,8 @@ function App() {
   const [parameters, setParameters] = useState({
     api_key: "",
     profile: "foot-walking",
+    population_size: 1000,
+    num_generations: 300
   });
 
   // function that validate GPS coordinates user input
