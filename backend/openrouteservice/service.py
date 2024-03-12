@@ -50,7 +50,7 @@ class OpenRouteService:
         lngLat = [[lng, lat] for lat, lng in locations]
 
         # Prepare the request body & headers
-        body = {"coordinates": lngLat}
+        body = {"coordinates": lngLat, 'radiuses': [-1] * len(locations)}
         headers = {
             'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
             'Authorization': self.api_key,
@@ -73,8 +73,11 @@ class OpenRouteService_response:
     def __init__(self, response):
         self.response = response
     def get_geometry(self):
-        geometry = self.response['features'][0]['geometry']['coordinates']
-        return [[lng, lat] for lat, lng in geometry]
+        try:
+            geometry = self.response['features'][0]['geometry']['coordinates']
+            return [[lng, lat] for lat, lng in geometry]
+        except:
+            return []
     def get_response(self):
         return self.response
     def get_distances_matrix(self):
