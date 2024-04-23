@@ -5,13 +5,13 @@ param(
 
 # check if -Build is passed as argument
 if ($build -eq $true) {
-    echo "Building frontend..."
+    Write-Output "Building frontend..."
     # run frontend/start.ps1
-    cd frontend
+    Set-Location frontend
     npm run build
-    cd ..
+    Set-Location ..
 }
 
 # run backend/start.ps1
-cd backend
+Set-Location backend
 .\start.ps1
