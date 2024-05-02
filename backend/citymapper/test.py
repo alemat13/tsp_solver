@@ -1,6 +1,8 @@
 import itertools
 import requests
 import json
+import os
+import threading
 
 def get_journeys(start_point, end_point, region_id, include_stepfree, departure_time=None):
     url = "https://citymapper.com/api/7/journeys"
@@ -18,6 +20,29 @@ def get_journeys(start_point, end_point, region_id, include_stepfree, departure_
     else:
         print("Erreur lors de la récupération des trajets:", response.status_code)
         return None
+
+# Fonction pour récupérer les trajets pour une combinaison de points
+def get_journeys_for_combinations(combinations, region_id, include_stepfree, departure_time=None):
+    for start_point, end_point in combinations:
+        output_file = f"journeys_results/{start_point.replace(',', '_')}_to_{end_point.replace(',', '_')}.json"
+        print(f"Récupération des trajets de {start_point} à {end_point}...")
+        print(f"Avancement: {combinations.index((start_point, end_point)) + 1}/{len(combinations)}")
+        journeys = get_journeys(start_point, end_point, region_id, include_stepfree, departure_time)
+        if journeys:
+            with open(output_file, "w") as f:
+                json.dump(journeys, f)
+
+def start_threads(combinations, region_id, include_stepfree, num_threads, departure_time=None):
+    threads = []
+    for i in range(num_threads):
+        start = i * len(combinations) // num_threads
+        end = (i + 1) * len(combinations) // num_threads
+        thread = threading.Thread(target=get_journeys_for_combinations, args=(combinations[start:end], region_id, include_stepfree, departure_time))
+        threads.append(thread)
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 # Liste des points GPS
 gps_points = [
@@ -82,45 +107,14 @@ gps_points = [
 ]
 departure_time = "2024-05-04T10:00:00"
 
-region_id = "it-rome"
-include_stepfree = 1
-
 # Générer toutes les combinaisons possibles de points GPS dans les 2 sens
 combinations = list(itertools.combinations(gps_points, 2)) + list(itertools.combinations(gps_points[::-1], 2))
 
 # mkdir journeys_results if not exists
-import os
 if not os.path.exists("journeys_results"):
     os.makedirs("journeys_results")
 
 # Nombre de threads à utiliser pour récupérer les trajets
-import threading
-num_threads = 100
 
-# Fonction pour récupérer les trajets pour une combinaison de points
-def get_journeys_for_combinations(combinations, region_id, include_stepfree):
-    for start_point, end_point in combinations:
-        output_file = f"journeys_results/{start_point.replace(',', '_')}_to_{end_point.replace(',', '_')}.json"
-        print(f"Récupération des trajets de {start_point} à {end_point}...")
-        journeys = get_journeys(start_point, end_point, region_id, include_stepfree, departure_time)
-        if journeys:
-            with open(output_file, "w") as f:
-                json.dump(journeys, f)
-
-# Créer les threads
-threads = []
-for i in range(num_threads):
-    start = i * len(combinations) // num_threads
-    end = (i + 1) * len(combinations) // num_threads
-    thread = threading.Thread(target=get_journeys_for_combinations, args=(combinations[start:end], region_id, include_stepfree))
-    threads.append(thread)
-
-# Lancer les threads
-for thread in threads:
-    thread.start()
-
-# Attendre que tous les threads se terminent
-for thread in threads:
-    thread.join()
-
+start_threads(combinations, region_id="it-rome", include_stepfree=1, num_threads=100, departure_time=departure_time)
 print("Tous les trajets ont été récupérés.")
