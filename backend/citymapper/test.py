@@ -30,7 +30,7 @@ def get_journeys_for_combinations(combinations, region_id, include_stepfree, dep
         journeys = get_journeys(start_point, end_point, region_id, include_stepfree, departure_time)
         if journeys:
             with open(output_file, "w") as f:
-                json.dump(journeys, f)
+                json.dump(journeys, f, indent=4)
 
 def start_threads(combinations, region_id, include_stepfree, num_threads, departure_time=None):
     threads = []
