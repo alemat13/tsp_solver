@@ -8,17 +8,17 @@ function App() {
     process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
   const API_ENDPOINT = `${API_HOST}/api/calculate`;
   const [positions, setPositions] = useState([
-    "48.8606, 2.3376",
-    "48.8530, 2.3499",
-    "48.8738, 2.2950",
-    "48.8867, 2.3431",
-    "48.8600, 2.3267",
-    "48.8698, 2.3075",
-    "48.8635, 2.3274",
-    "48.8462, 2.3447",
-    "48.8656, 2.3212",
-    "48.8556, 2.3158",
-    "",
+    { lat: "48.8606", lon: "2.3376", label: "" },
+    { lat: "48.8530", lon: "2.3499", label: "" },
+    { lat: "48.8738", lon: "2.2950", label: "" },
+    { lat: "48.8867", lon: "2.3431", label: "" },
+    { lat: "48.8600", lon: "2.3267", label: "" },
+    { lat: "48.8698", lon: "2.3075", label: "" },
+    { lat: "48.8635", lon: "2.3274", label: "" },
+    { lat: "48.8462", lon: "2.3447", label: "" },
+    { lat: "48.8656", lon: "2.3212", label: "" },
+    { lat: "48.8556", lon: "2.3158", label: "" },
+    { lat: "", lon: "", label: "" },
   ]);
   const [route, setRoute] = useState({
     optimal_route: [],
@@ -71,19 +71,26 @@ function App() {
   }, []);
 
   const positionsObj = positions
-    .filter((e) => e !== "")
-    .map((p) => p.split(",").map((e) => parseFloat(e)));
+    .filter((p) => p.lat !== "" && p.lon !== "")
+    .map((p) => [parseFloat(p.lat), parseFloat(p.lon)]);
 
   const handleChange = (e, index) => {
+    const { name, value } = e.target;
     const newPositions = [...positions];
-    newPositions[index] = e.target.value;
+    newPositions[index] = { ...newPositions[index], [name]: value };
     setPositions(newPositions);
   };
 
   const handlePaste = (e, index) => {
     e.preventDefault();
     const pastedTxt = e.clipboardData.getData("text");
-    const newPositionsList = pastedTxt.split(/\r?\n/).filter((e) => e !== "");
+    const newPositionsList = pastedTxt
+      .split(/\r?\n/)
+      .filter((line) => line.trim() !== "")
+      .map((line) => {
+        const [lat, lon] = line.split(",").map((s) => s.trim());
+        return { lat, lon, label: "" };
+      });
     setPositions((prev) => [
       ...prev.slice(0, index),
       ...newPositionsList,
@@ -91,35 +98,45 @@ function App() {
     ]);
   };
 
+  const handleRemove = (index) => {
+    setPositions((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div>
       <ParameterBox parameters={parameters} setParameters={setParameters} />
       <h1>Optimize GPS Positions</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Enter GPS Positions:</label>
-        {positions.map((position, index) => (
-          <div key={index}>
-            <input
-              key={index}
-              type="text"
-              value={position}
-              onChange={(e) => handleChange(e, index)}
-              onPaste={(e) => handlePaste(e, index)}
-            />
-            <button
-              type="button"
-              onClick={(e, index) => {
-                setPositions([...positions].splice(index));
-                console.log(index);
-              }}
-            >
-              X
-            </button>
-          </div>
-        ))}
-        <button type="button" onClick={() => setPositions([...positions, ""])}>
-          Add Position
-        </button>
+        <form onSubmit={handleSubmit}>
+          <label>Enter GPS Positions:</label>
+          {positions.map((position, index) => (
+            <div key={index}>
+              <input
+                type="text"
+                name="lat"
+                value={position.lat}
+                onChange={(e) => handleChange(e, index)}
+                onPaste={(e) => handlePaste(e, index)}
+              />
+              <input
+                type="text"
+                name="lon"
+                value={position.lon}
+                onChange={(e) => handleChange(e, index)}
+              />
+              <input
+                type="text"
+                name="label"
+                value={position.label}
+                onChange={(e) => handleChange(e, index)}
+              />
+              <button type="button" onClick={() => handleRemove(index)}>
+                X
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={() => setPositions([...positions, { lat: "", lon: "", label: "" }])}>
+            Add Position
+          </button>
         <button type="submit">Optimize Positions</button>
         <button type="button" onClick={() => setPositions([])}>
           Clear
