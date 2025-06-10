@@ -62,7 +62,11 @@ def get_open_route_service(api_key=None):
     except KeyError:
         sslVerify = 'true'
 
-    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
+    return OpenRouteService(
+        api_key=api_key,
+        proxies=proxies,
+        verifySsl=(sslVerify.lower() == 'true')
+    )
 
 def calculate_route(positions, profile='foot-walking', api_key=None, num_generations=300, population_size=1000):
     ors = get_open_route_service(api_key=api_key)

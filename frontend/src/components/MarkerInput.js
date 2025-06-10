@@ -1,7 +1,7 @@
 import React from 'react';
 
 const MarkerInput = ({ marker, onChange }) => {
-    { lat, lon, label } = marker;
+    const { lat, lon, label } = marker;
     return (
         <li>
             <label>Latitude:</label>
