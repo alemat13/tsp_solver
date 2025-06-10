@@ -21,7 +21,7 @@ def get_solver_tour_genetic(points, population_size=100, num_generations=100, di
 
 
 def get_optimal_route(points, distances_matrix=None, population_size = 1000, num_generations = 300):
-    # Calculer le chemin optimal avec Concorde
+    # Try Concorde first, then fall back to the genetic solver if Concorde isn't installed
     try:
         from app_utils import get_solver_tour_concorde
         tour_indices = get_solver_tour_concorde(
@@ -62,7 +62,8 @@ def get_open_route_service(api_key=None):
     except KeyError:
         sslVerify = 'true'
 
-    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=(sslVerify.lower == 'true'))
+    verify_ssl = sslVerify.lower() == 'true'
+    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=verify_ssl)
 
 def calculate_route(positions, profile='foot-walking', api_key=None, num_generations=300, population_size=1000):
     ors = get_open_route_service(api_key=api_key)
