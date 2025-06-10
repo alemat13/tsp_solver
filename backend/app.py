@@ -21,7 +21,7 @@ def get_solver_tour_genetic(points, population_size=100, num_generations=100, di
 
 
 def get_optimal_route(points, distances_matrix=None, population_size = 1000, num_generations = 300):
-    # Calculer le chemin optimal avec Concorde
+    # Try Concorde first, then fall back to the genetic solver if Concorde isn't installed
     try:
         from app_utils import get_solver_tour_concorde
         tour_indices = get_solver_tour_concorde(
