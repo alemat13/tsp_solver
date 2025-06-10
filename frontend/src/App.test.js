@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+// Mock Map component to avoid React Leaflet dependency issues in Jest
+jest.mock('./components/Map', () => () => <div />);
+
+test('renders the main heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const headingElement = screen.getByText(/Optimize GPS Positions/i);
+  expect(headingElement).toBeInTheDocument();
 });
