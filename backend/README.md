@@ -8,11 +8,11 @@ https://www.docker.com/products/docker-desktop/
 
 ## Build Docker Image
 
-The simplier way to build the Docker image is to run this command :
+The simpler way to build the Docker image is to run this command :
 
 ``docker build -t tsp_solver:latest https://github.com/alemat13/tsp_solver.git#main``
 
-Or if you already cloned the repo, you can run the following command at the projet root dir:
+Or if you already cloned the repo, you can run the following command at the project root dir:
 
 ``docker build -t tsp_solver .``
 
