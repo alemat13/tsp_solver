@@ -1,7 +1,10 @@
 from flask import Flask, request, send_from_directory
 from flask_cors import CORS
-from openrouteservice import OpenRouteService
 import configparser
+
+from domain.entities import Point
+from infrastructure.openrouteservice_adapter import OpenRouteServiceAdapter
+from usecases.route_calculator import calculate_route as usecase_calculate_route
 
 REACT_BUILD_DIR = '../frontend/build'
 
@@ -15,73 +18,29 @@ def get_config():
     return config
 
 
-def get_solver_tour_genetic(points, population_size=100, num_generations=100, distances_matrix=None):
-    from tsp_genetic import solve_tsp_genetic
-    return solve_tsp_genetic(points, population_size, num_generations, distances_matrix)
-
-
-def get_optimal_route(points, distances_matrix=None, population_size = 1000, num_generations = 300):
-    # Try Concorde first, then fall back to the genetic solver if Concorde isn't installed
-    try:
-        from app_utils import get_solver_tour_concorde
-        tour_indices = get_solver_tour_concorde(
-            points, distances_matrix=distances_matrix)
-    except ImportError:
-        tour_indices = get_solver_tour_genetic(
-            points,
-            population_size=population_size,
-            num_generations=num_generations,
-            distances_matrix=distances_matrix
-        )
-
-    # Renvoyer les positions dans l'ordre du chemin optimal
-    return [points[i] for i in tour_indices]
 
 
 
 def get_open_route_service(api_key=None):
-    config = get_config()
-
-    # Check if config['proxies'] is defined
-    if 'proxies' in config:
-        proxies = {
-            "http": config['proxies']['http'],
-            "https": config['proxies']['https'],
-        }
-    else:
-        proxies = None
-
-    if api_key is None:
-        try:
-            api_key = config['api_keys']['openrouteservice_api_key']
-        except KeyError:
-            return {'error': 'No API key found in config.ini'}
-
-    try:
-        sslVerify = config['ssl']['verify']
-    except KeyError:
-        sslVerify = 'true'
-
-    verify_ssl = sslVerify.lower() == 'true'
-    return OpenRouteService(api_key=api_key, proxies=proxies, verifySsl=verify_ssl)
+    """Return a routing service adapter configured with parameters from config.ini."""
+    # This function is kept for backward compatibility with existing code
+    return OpenRouteServiceAdapter(api_key=api_key)
 
 def calculate_route(positions, profile='foot-walking', api_key=None, num_generations=300, population_size=1000):
-    ors = get_open_route_service(api_key=api_key)
+    """High level helper called by the API endpoint."""
+    routing_service = get_open_route_service(api_key=api_key)
+    points = [Point(lat=lat, lng=lng) for lat, lng in positions]
 
-    # Afficher le résultat à l'utilisateur
-    distances_matrix = ors.get_distances_matrix(positions, profile=profile)
-
-    optimal_route = get_optimal_route(
-        positions,
-        distances_matrix=distances_matrix,
+    result = usecase_calculate_route(
+        points,
+        routing_service=routing_service,
+        profile=profile,
+        population_size=population_size,
         num_generations=num_generations,
-        population_size=population_size
     )
 
-    ors_resp = ors.get_directions(optimal_route, profile=profile)
-    geometry = ors_resp.get_geometry()
-
-    return {'optimal_route': optimal_route, 'route': geometry, 'distances_matrix': distances_matrix, 'ors_resp': ors_resp.response}
+    result['optimal_route'] = [[p.lat, p.lng] for p in result['optimal_route']]
+    return result
 
 @app.route('/api/calculate', methods=['POST', 'GET'])
 def calculate_route_api():
