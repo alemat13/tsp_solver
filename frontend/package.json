@@ -69,6 +69,14 @@
     "serialize-javascript": "^7.0.5",
     "http-proxy-agent": {
       "@tootallnate/once": "^2.0.1"
+    },
+    "launch-editor": "^2.14.2",
+    "source-map-js": "^1.2.2",
+    "compression": "^1.8.2",
+    "brace-expansion@1": "^1.1.21",
+    "brace-expansion@2": "^2.1.7",
+    "webpack-dev-server": {
+      "webpack-dev-middleware": "^7.4.5"
     }
   }
 }
