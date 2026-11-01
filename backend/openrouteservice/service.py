@@ -22,7 +22,7 @@ class OpenRouteService:
             'Content-Type': 'application/json; charset=utf-8'
         }
         call = requests.post(
-            url=f'https://api.openrouteservice.org/v2/matrix/{profile}',
+            url=f'https://api.heigit.org/openrouteservice/v2/matrix/{profile}',
             json=body,
             headers=headers,
             proxies=self.proxies,
@@ -59,7 +59,7 @@ class OpenRouteService:
 
         # Make the request
         call = requests.post(
-            url=f'https://api.openrouteservice.org/v2/directions/{profile}/geojson',
+            url=f'https://api.heigit.org/openrouteservice/v2/directions/{profile}/geojson',
             json=body,
             headers=headers,
             proxies=self.proxies,
